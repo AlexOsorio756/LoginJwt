@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Crea tu contraseña</h2>
+    <input type="password" id="nuevaPass" placeholder="Nueva Contraseña">
+    <button onclick="enviar()">Activar mi cuenta</button>
+
+    <script>
+        async function enviar() {
+            // Extrae el token de la URL (ej: ?token=abc)
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const password = document.getElementById('nuevaPass').value;
+
+            const res = await fetch('/api/users/confirm', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token, password })
+            });
+
+            if(res.ok) {
+                alert("¡Listo! Ahora puedes ir al Login.");
+                window.location.href = "login.html";
+            }
+        }
+    </script>
+</body>
+</html>

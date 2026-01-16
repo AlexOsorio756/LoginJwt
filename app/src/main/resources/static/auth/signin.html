@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        form { border: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    </style>
+</head>
+<body>
+    <form id="registroForm">
+        <h2>Create account</h2>
+        <input type="text" id="user" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Register</button>
+        <a href="login.html">Already have an account</a>
+    </form>
+
+    <script>
+        document.getElementById('registroForm').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    const usuarioParaRegistrar = {
+        email: document.getElementById('email').value,
+        username: document.getElementById('user').value
+    };
+
+    const response = await fetch('/api/users/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(usuarioParaRegistrar)
+    });
+
+    if (response.ok) {
+        const usuarioCreado = await response.json();
+        const token = usuarioCreado.token; // Aquí sacamos el token que generó Java
+        
+        // Creamos el enlace manualmente para probar
+        const enlaceSimulado = `http://localhost:8080/auth/confirm.html?token=${token}`;
+        
+        // REEMPLAZAMOS EL CONTENIDO DE LA PÁGINA CON EL ENLACE
+        document.body.innerHTML = `
+            <div style="padding: 50px; text-align: center; font-family: sans-serif;">
+                <h2 style="color: green;">¡Registro exitoso!</h2>
+                <p>Normalmente esto llegaría a tu correo, pero haz clic aquí para continuar:</p>
+                <a href="${enlaceSimulado}" style="font-size: 20px; font-weight: bold;">
+                   CONFIRMAR CUENTA Y CREAR CONTRASEÑA
+                </a>
+                <p style="color: gray; font-size: 12px; margin-top: 20px;">Token generado: ${token}</p>
+            </div>
+        `;
+    } else {
+        alert("Error en el registro. Revisa la consola de Java.");
+    }
+};
+    </script>
+</body>
+</html>

@@ -12,6 +12,8 @@ public class User {
     private Long id;
     private String username;
     private String password;
-    @Column(name = "emailAdress", unique = true, nullable = false)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
+    private String token; 
+    private boolean active = false; 
 }
