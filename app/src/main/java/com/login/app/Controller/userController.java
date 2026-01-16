@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.login.app.Entity.User;
 import com.login.app.Service.userService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,14 +35,26 @@ public class userController {
         return "Welcome to User Management API";
     }
 
-    // 1. Recibe Nombre y Correo
+    @Operation(
+    summary = "Registrarse", description = "Recibe username(nombre completo) y email del usuario para enviarle un correo de confirmacion.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Se registro el usuario correctamente"),
+    @ApiResponse(responseCode = "404", description = "Algun dato es incorrecto"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
     @PostMapping("/signin")
     public User signIn(@RequestBody User user) {
         userService.initialRegistration(user);
         return user;
     }
 
-    // 2. Recibe el Token y la Password desde la nueva página HTML
+    @Operation(
+    summary = "Confirmar la creacion de usuario", description = "Recibe la contraseña y el token enviado por correo para activar la cuenta.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Se creo el usuario correctamente en la base de datos"),
+    @ApiResponse(responseCode = "404", description = "Algun dato es incorrecto para creear el usuario o ya se creo"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
     @PostMapping("/confirm")
     public ResponseEntity<?> confirm(@RequestBody Map<String, String> request) {
         String token = request.get("token");
@@ -48,7 +65,13 @@ public class userController {
 
         return ResponseEntity.ok(Map.of("message", "Usuario activado"));
     }
-
+    @Operation(
+    summary = "Ver usuario por id", description = "Muestra el usuario con el id dado si existe")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Devolvio el usuario correctamente"),
+    @ApiResponse(responseCode = "404", description = "El usuario con ese id no existe"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
     @GetMapping("/{userId}")
     public Optional<User> getUserById(@PathVariable("userId") Long userId) {
         return userService.getUserById(userId);
@@ -57,12 +80,26 @@ public class userController {
     @Autowired
     private PasswordEncoder passwordEncoder; 
 
+    @Operation(
+    summary = "Guardar/Actualizar", description = "Guarda o actualiza el usuario en la base de datos, en caso de nueva creación cifra la contraseña.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Se guardo/actualizo el usuario correctamente"),
+    @ApiResponse(responseCode = "404", description = "El usuario no se pudo guardar/actualizar"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
     @PostMapping
     public void saveUpdateUser(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.saveUser(user);
     }
     
+    @Operation(
+    summary = "Eliminar", description = "Elimina el usuario de la base de datos.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Se elimino el usuario correctamente"),
+    @ApiResponse(responseCode = "404", description = "El usuario no se pudo borrar porque no existe"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable("userId") Long userId) {
         userService.deleteUser(userId);

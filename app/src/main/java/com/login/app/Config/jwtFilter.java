@@ -25,6 +25,13 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
 
     String authHeader = request.getHeader("Authorization");
 
+    String path = request.getRequestURI();
+    // Si la ruta es de autenticación dejamos pasar para evitar errores en el frontend
+    if (path.startsWith("/api/auth/")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
     // Si no hay Header en el token o no empieza con Bearer seguimos al sigiuiente filtro
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
         filterChain.doFilter(request, response);

@@ -29,10 +29,9 @@ public class securityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                
-                .requestMatchers("/", "/index.html", "/auth/**", "/static/**","/auth/resetPassword.html").permitAll()
                 // Endpoints de acceso público
-                .requestMatchers("/api/auth/**", "/api/users/signin", "/api/users/confirm", "/api/auth/forgotPassword").permitAll()
+                .requestMatchers("/api/auth/**", "/api/users/signin", "/api/users/confirm", "/api/auth/forgotPassword","/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html").permitAll()
+                .requestMatchers("/", "/index.html", "/auth/**", "/static/**","/auth/resetPassword.html").permitAll()       
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

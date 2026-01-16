@@ -34,7 +34,7 @@
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
+                body: JSON.stringify(data)
             });
 
             if (response.ok) {
@@ -57,14 +57,15 @@
     }
 
     async function AskResetPassword() {
-        const email = prompt("Ingresa tu correo electrónico:");
+        event.preventDefault();
+        const email = prompt("Enter your email:");
         if (email) {
-            const res = await fetch('/api/auth/forgot-password', {
+            const res = await fetch('/api/auth/forgotPassword', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email })
             });
-            if (res.ok) alert("Revisa tu correo");
+            if (res.ok) alert("Check your email");
             else alert("Error al enviar el correo");
         }
     }

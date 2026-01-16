@@ -5,6 +5,11 @@ import com.login.app.Entity.User;
 import com.login.app.Repository.userRepository;
 import com.login.app.Service.emailService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.HashMap;
 
+@Tag(name = "Autenticación", description = "Operaciones relacionadas con el acceso, registro y recuperación de cuenta")
 @RestController
 @RequestMapping("/api/auth")
 public class authController {
@@ -29,6 +35,13 @@ public class authController {
     @Autowired
     private emailService emailService;
 
+    @Operation(
+    summary = "Iniciar sesión", description = "Recibe las credenciales del usuario y devuelve un token JWT si son correctas.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Se inicio sesión correctamente"),
+    @ApiResponse(responseCode = "404", description = "No existe el usuario con ese nombre"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody Map<String, String> request) {
         String username = request.get("username");
@@ -54,7 +67,14 @@ public class authController {
         }
     }
 
-    @PostMapping("/api/auth/forgotPassword")
+    @Operation(
+    summary = "Recuperar contraseña", description = "Envía un correo electrónico con un enlace para restablecer la contraseña y recibe un request que es el correo del usuario.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Correo enviado con éxito"),
+    @ApiResponse(responseCode = "404", description = "No se encontró el usuario con ese email"),
+    @ApiResponse(responseCode = "500", description = "Error interno al enviar el correo")
+})
+    @PostMapping("/forgotPassword")
     public ResponseEntity<?> forgotPassword(@RequestBody forgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.email()).orElseThrow(() -> new RuntimeException("No existe un usuario con ese correo"));
 

@@ -43,14 +43,14 @@
                 } else {
                     // Si el servidor dice 403 el token es inválido o expiró
                     alert("Session invalid");
-                    closeSession();
+                    LogOut();
                 }
             } catch (error) {
                 console.error("Error:", error);
             }
         };
 
-        function closeSession() {
+        function LogOut() {
             localStorage.removeItem('myTokenJWT');
             window.location.href = "/auth/login.html";
         }

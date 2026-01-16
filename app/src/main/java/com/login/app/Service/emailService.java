@@ -26,7 +26,7 @@ public class emailService {
         message.setTo(toSend);
         message.setSubject("Reset Your Password - App 2026");
         message.setText("Hello, click here to reset your password: \n" +
-                "http://localhost:8080/auth/reset-password.html?token=" + token);
+                "http://localhost:8080/auth/resetPassword.html?token=" + token);
         mailSender.send(message);
     }
 }
