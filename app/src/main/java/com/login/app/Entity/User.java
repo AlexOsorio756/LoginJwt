@@ -16,4 +16,5 @@ public class User {
     private String email;
     private String token; 
     private boolean active = false; 
+    private String validationToken;
 }

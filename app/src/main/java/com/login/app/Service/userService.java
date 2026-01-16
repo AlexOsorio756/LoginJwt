@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import com.login.app.Entity.User;
 import com.login.app.Repository.userRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class userService {
     
@@ -17,33 +19,34 @@ public class userService {
     private userRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;    
+    private PasswordEncoder passwordEncoder;  
+    @Autowired
+    private emailService emailService; 
 
     public void initialRegistration(User user) {
-        // Generamos un código aleatorio como "a1b2-c3d4"
+
         String secretCode = UUID.randomUUID().toString();
+        user.setValidationToken(secretCode);
         user.setToken(secretCode);
-        user.setActive(false); // No puede entrar todavía
+        user.setActive(false);
         userRepository.save(user);
-        
-        // TIP: Aquí imprimirás en consola el enlace para que lo pruebes:
-        System.out.println("Enlace de confirmación: http://localhost:8080/auth/confirmar.html?token=" + secretCode);
+
+        //Enviamos correo a mailtrap
+        emailService.sendMailConfirm(user.getEmail(), secretCode);
+    
     }
 
-    // PASO B: El usuario usa el token para poner su contraseña
-    public boolean activeAccount(String token, String userPassword) {
-        Optional<User> optionalUser = userRepository.findByToken(token);
+    @Transactional
+    public void activeAccount(String token, String passwordPlano) {
+        User user = userRepository.findByValidationToken(token)
+            .orElseThrow(() -> new RuntimeException("The link has expired or already been used."));
+
+        user.setPassword(passwordEncoder.encode(passwordPlano));
+        user.setActive(true);
         
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            // Encriptamos la contraseña
-            user.setPassword(passwordEncoder.encode(userPassword));
-            user.setActive(true); // ¡Ya puede entrar!
-            user.setToken(null);  // Borramos el token para que no se use dos veces
-            userRepository.save(user);
-            return true;
-        }
-        return false;
+        // Se elimina el token para que no se pueda usar de nuevo
+        user.setValidationToken(null); 
+        userRepository.save(user);
     }
 
     public List<User> getAllUsers() {
@@ -53,7 +56,6 @@ public class userService {
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
-    // Este es el método que usará Spring Security
     public Optional<User> getUserByName(String username) {
         return userRepository.findByUsername(username);
     }

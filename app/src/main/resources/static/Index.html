@@ -1,21 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <title>Dashboard</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 100px; }
-        .card { border: 1px solid #ddd; display: inline-block; padding: 20px; border-radius: 8px; }
-        a { color: red; text-decoration: none; font-weight: bold; }
+        body { font-family: sans-serif; padding: 50px; text-align: center; }
+        .container { border: 1px solid #ddd; padding: 20px; border-radius: 8px; display: inline-block; }
+        button { background: #ff4444; color: white; border: none; padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>¡Welcome to the Dashboard!</h1>
-        <p>You have successfully logged in using the database.</p>
+    <div class="container">
+        <h1>Welcome again</h1>
+        <p id="message">Verifying access...</p>
         <hr>
-        <form action="/logout" method="POST">
-            <button type="submit">Logout</button>
-        </form>
+        <button onclick="LogOut()">Log Out</button>
     </div>
+
+    <script>
+        // Tenemos que ver si tenemos acceso apenas entremos a esta página
+        window.onload = async function() {
+            const token = localStorage.getItem('myTokenJWT');
+
+            if (!token) {
+                window.location.href = "/auth/login.html";
+                return;
+            }
+
+            try {
+                //Enviamos el token para verificar
+                const response = await fetch('/api/users', { 
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token 
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('message').innerText = "Access granted. Hello, " + token.split('.')[1] + "!"; 
+                    console.log("Server data:", data);
+                } else {
+                    // Si el servidor dice 403 el token es inválido o expiró
+                    alert("Session invalid");
+                    closeSession();
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+
+        function closeSession() {
+            localStorage.removeItem('myTokenJWT');
+            window.location.href = "/auth/login.html";
+        }
+    </script>
 </body>
 </html>

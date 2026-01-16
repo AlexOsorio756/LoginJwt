@@ -19,16 +19,15 @@ public class authService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // 1. Generar token y guardar usuario inactivo
-    public void registrarProvisoriamente(User user) {
+    //Generamos el token y guardamos el usuario inactivo por el momento
+    public void registUserFirstTime(User user) {
         user.setToken(UUID.randomUUID().toString());
         user.setActive(false);
         userRepository.save(user);
-        // AQUÍ enviarías el correo con: "http://localhost:8080/auth/confirmar.html?token=" + user.getToken()
     }
 
-    // 2. Validar token y asignar contraseña
-    public boolean confirmarCuenta(String token, String password) {
+    // Verficiamos que el token es válido y activamos la cuenta
+    public boolean confirmAccount(String token, String password) {
         Optional<User> userOpt = userRepository.findByToken(token);
         if (userOpt.isPresent()) {
             User user = userOpt.get();

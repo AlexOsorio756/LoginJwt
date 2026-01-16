@@ -1,28 +1,36 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <h2>Crea tu contraseña</h2>
-    <input type="password" id="nuevaPass" placeholder="Nueva Contraseña">
-    <button onclick="enviar()">Activar mi cuenta</button>
+    <h2>Create your password</h2>
+    <input type="password" id="newPassword" placeholder="New Password">
+    <button onclick="send()">Active my account</button>
 
     <script>
-        async function enviar() {
-            // Extrae el token de la URL (ej: ?token=abc)
-            const params = new URLSearchParams(window.location.search);
-            const token = params.get('token');
-            const password = document.getElementById('nuevaPass').value;
+        async function send() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const pass = document.getElementById('newPassword').value;
 
-            const res = await fetch('/api/users/confirm', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ token, password })
-            });
+    const response = await fetch('/api/users/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token, password: pass })
+    });
 
-            if(res.ok) {
-                alert("¡Listo! Ahora puedes ir al Login.");
-                window.location.href = "login.html";
-            }
-        }
+    if (response.ok) {
+        alert("Account activated! Now you can log in.");
+        window.location.href = "/auth/login.html";
+    } else {
+        const errorData = await response.json();
+        document.body.innerHTML = `
+            <div style="color: red; text-align: center; margin-top: 100px;">
+                <h2>Activation Error</h2>
+                <p>${errorData.error || "This link is no longer valid."}</p>
+                <a href="/auth/registro.html">Try registering again</a>
+            </div>
+        `;
+    }
+}
     </script>
 </body>
 </html>

@@ -1,16 +1,22 @@
 package com.login.app.Config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class securityConfig {
+
+    @Autowired
+    private jwtFilter jwtFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -21,19 +27,16 @@ public class securityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/api/users/**").permitAll() // Permitir registro
+                
+                .requestMatchers("/", "/index.html", "/auth/**", "/static/**","/auth/resetPassword.html").permitAll()
+                // Endpoints de acceso público
+                .requestMatchers("/api/auth/**", "/api/users/signin", "/api/users/confirm", "/api/auth/forgotPassword").permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(login -> login
-                .loginPage("/auth/login.html")
-                .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/index.html", true) // Aquí es donde irá tras el éxito
-                .permitAll()
-            )
-            .logout(logout -> logout.permitAll());
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
-

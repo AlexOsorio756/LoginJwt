@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Registro</title>
+    <title>Sign in</title>
     <style>
         body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
         form { border: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
     </style>
 </head>
 <body>
-    <form id="registroForm">
+    <form id="signInForm">
         <h2>Create account</h2>
         <input type="text" id="user" placeholder="Username" required>
         <input type="email" id="email" placeholder="Email" required>
-        <button type="submit">Register</button>
+        <button type="submit">Sign in</button>
         <a href="login.html">Already have an account</a>
     </form>
 
     <script>
-        document.getElementById('registroForm').onsubmit = async (e) => {
+        document.getElementById('signInForm').onsubmit = async (e) => {
     e.preventDefault();
     
-    const usuarioParaRegistrar = {
+    const userToSignIn = {
         email: document.getElementById('email').value,
         username: document.getElementById('user').value
     };
@@ -28,29 +28,29 @@
     const response = await fetch('/api/users/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(usuarioParaRegistrar)
+        body: JSON.stringify(userToSignIn)
     });
 
     if (response.ok) {
-        const usuarioCreado = await response.json();
-        const token = usuarioCreado.token; // Aquí sacamos el token que generó Java
+        const createdUser = await response.json();
+        const token = createdUser.token; 
         
-        // Creamos el enlace manualmente para probar
-        const enlaceSimulado = `http://localhost:8080/auth/confirm.html?token=${token}`;
+        // Creamos el enlace para probar
+        const simulatedLink = `http://localhost:8080/auth/confirm.html?token=${token}`;
         
-        // REEMPLAZAMOS EL CONTENIDO DE LA PÁGINA CON EL ENLACE
+        // Por si falla mailtrap o algo asi podemos ver el link en este html
         document.body.innerHTML = `
             <div style="padding: 50px; text-align: center; font-family: sans-serif;">
-                <h2 style="color: green;">¡Registro exitoso!</h2>
-                <p>Normalmente esto llegaría a tu correo, pero haz clic aquí para continuar:</p>
-                <a href="${enlaceSimulado}" style="font-size: 20px; font-weight: bold;">
-                   CONFIRMAR CUENTA Y CREAR CONTRASEÑA
+                <h2 style="color: green;"Sign in successfully!</h2>
+                <p>Normaly this will appear in your mail, but click here to continue:</p>
+                <a href="${simulatedLink}" style="font-size: 20px; font-weight: bold;">
+                   CONFIRM MY ACCOUNT AND PASSWORD
                 </a>
-                <p style="color: gray; font-size: 12px; margin-top: 20px;">Token generado: ${token}</p>
+                <p style="color: gray; font-size: 12px; margin-top: 20px;">Token generated: ${token}</p>
             </div>
         `;
     } else {
-        alert("Error en el registro. Revisa la consola de Java.");
+        alert("Error in sign in. Check java console.");
     }
 };
     </script>

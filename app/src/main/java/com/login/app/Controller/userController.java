@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,12 +39,14 @@ public class userController {
 
     // 2. Recibe el Token y la Password desde la nueva página HTML
     @PostMapping("/confirm")
-    public String confirm(@RequestBody Map<String, String> data) {
-        String token = data.get("token");
-        String password = data.get("password");
-        
-        boolean exito = userService.activeAccount(token, password);
-        return exito ? "Cuenta activada con éxito" : "Token inválido";
+    public ResponseEntity<?> confirm(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String password = request.get("password");
+
+        System.out.println(token); 
+        userService.activeAccount(token, password); 
+
+        return ResponseEntity.ok(Map.of("message", "Usuario activado"));
     }
 
     @GetMapping("/{userId}")
@@ -52,7 +55,7 @@ public class userController {
     }
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // Inyectamos el encriptador
+    private PasswordEncoder passwordEncoder; 
 
     @PostMapping
     public void saveUpdateUser(@RequestBody User user) {
