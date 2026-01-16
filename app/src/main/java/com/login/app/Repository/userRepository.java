@@ -1,0 +1,11 @@
+package com.login.app.Repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.login.app.Entity.User;
+
+@Repository
+public interface userRepository extends JpaRepository<User, Long> {
+
+}
